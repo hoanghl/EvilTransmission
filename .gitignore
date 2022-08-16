@@ -160,5 +160,3 @@ testing/
 Pipfile.lock
 
 resources
-
-tests/

@@ -5,6 +5,10 @@ name = "pypi"
 
 [packages]
 cryptography = "*"
+rsa = "*"
+black = "*"
+isort = "*"
+pylint = "*"
 
 [dev-packages]
 pylint = "*"

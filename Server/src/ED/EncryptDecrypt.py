@@ -1,39 +1,29 @@
 
-from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
-from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+
 
 class EncryptDecrypt:
     def __init__(self) -> None:
-        pass
+        self.rsa_pubkey, self.rsa_privatekey = None, None
+        self.fernetkey = None
 
-    def encryptRSA(self):
-        pass
-    
-    def decryptRSA(self):
-        pass
+        self._gen_keypairRSA()
 
-    def getServerRSAPublicKey(self):
-        """Return server's RSA public key
+    def _rsa_gen_keypair(self):
+        """Create public and private key for RSA-384 and update it to self.rsa_pubkey and self.rsa_privatekey
         """
         pass
 
-    def loadClientRSAPublicKey(self, clientPubKey: str):
-        """Load client's RSA public key. Input must obey PEM format.
-
-        Args:
-            clientPubKey (str): String sent by client
+    def _fernet_gen_key(self):
+        """Generate symmetric key for Fernet. Only run if self.fernetkey is None
         """
 
-    def createRSAKey(self):
+        if self.fernetkey is None:
+            ## Generate Fernet key
+            pass
 
-    def encryptAES(self, data: bytes) -> str:
-        """Encrypt
-
-        Returns:
-            str: [description]
-        """
+    def _update_fernet_key(self, key):
         pass
 
-    def decryptAES(self):
-        pass

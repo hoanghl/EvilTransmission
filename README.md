@@ -21,8 +21,8 @@ I develop a dedicated TCP protocol to exchange data between client and server. M
 
 ## 5. Features
 
-[x] Basic components for both client and server
-[x] Basic components for protocol
-[ ] Upgrade protocol to send both images and videos
-[ ] Add encryption
-[ ] Beautify client app
+- [x] Basic components for both client and server
+- [x] Basic components for protocol
+- [ ] Upgrade protocol to send both images and videos
+- [ ] Add encryption
+- [ ] Beautify client app
