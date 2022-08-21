@@ -1,0 +1,147 @@
+openapi: 3.0.3
+info:
+  title: EvilTransmission - OpenAPI 3.0
+  description: |-
+    This is a sample Pet Store Server based on the OpenAPI 3.0 specification.  You can find out more about
+    Swagger at [https://swagger.io](https://swagger.io). In the third iteration of the pet store, we've switched to the design first approach!
+    You can now help us improve the API whether it's by making changes to the definition itself or to the code.
+    That way, with time, we can improve the API in general, and expose some of the new features in OAS3.
+
+    _If you're looking for the Swagger 2.0/OAS 2.0 version of Petstore, then click [here](https://editor.swagger.io/?url=https://petstore.swagger.io/v2/swagger.yaml). Alternatively, you can load via the `Edit > Load Petstore OAS 2.0` menu option!_
+
+    Some useful links:
+    - [The Pet Store repository](https://github.com/swagger-api/swagger-petstore)
+    - [The source API definition for the Pet Store](https://github.com/swagger-api/swagger-petstore/blob/master/src/main/resources/openapi.yaml)
+  termsOfService: http://swagger.io/terms/
+  contact:
+    email: apiteam@swagger.io
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.11
+externalDocs:
+  description: Find out more about Swagger
+  url: http://swagger.io
+servers:
+  - url: http://localhost:30556/
+tags:
+  - name: Resource
+    description: Get, upload resources
+  - name: Security
+    description: Get key
+paths:
+  /res:
+    get:
+      summary: Get list of resources by group or specific group
+      tags:
+        - Resource
+      description: |
+        Retrieve a list of all datasets that the current user has at least a read permission.
+      parameters:
+        - name: rid
+          in: query
+          required: false
+          description: Resource ID. Only specify if fetching specific resource
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successfully retrieve the list of all datasets which are available for the current user.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/File"
+        "401":
+          $ref: "#/components/responses/UnauthorizedResponse"
+    post:
+      summary: Upload resource(s)
+      tags:
+        - Resource
+      description: |
+        Upload single or multiple files.
+      parameters:
+        - name: rtype
+          in: query
+          required: false
+          description: Resource ype
+          schema:
+            $ref: "#/components/schemas/MediaType"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ListFiles"
+            examples:
+              first:
+                value:
+                  name: quickstart
+              second:
+                value:
+                  name: quickstart
+                  group: "1000"
+      responses:
+        "200":
+          description: Dataset
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListFiles"
+        "401":
+          $ref: "#/components/responses/UnauthorizedResponse"
+components:
+  responses:
+    ## Sucesses
+    UploadCompleteResponse:
+      description: Resources upload complete
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ResponseMessage"
+    ## Errors
+    NotFoundResponse:
+      description: The specified resource was not found.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ResponseMessage"
+    UnauthorizedResponse:
+      description: Not allowed to access.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ResponseMessage"
+  schemas:
+    ResponseMessage:
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+          description: the code of response.
+        message:
+          type: string
+          description: the description of the code.
+    MediaType:
+      type: string
+      nullable: true
+      enum:
+        - image
+        - video
+      default: image
+      description: The media type of resource
+    File:
+      type: object
+      properties:
+        filename:
+          type: array
+          items:
+            type: string
+            format: binary
+    ListFiles:
+      type: array
+      items:
+        $ref: "#/components/schemas/File"
