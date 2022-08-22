@@ -1,19 +1,29 @@
 package internal
 
 import (
-	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
 
+var logger = GetLog()
+
 func GetRes(ctx *gin.Context) {
-	println(ctx.Params)
+	val, isExisted := ctx.Params.Get("rid")
+	if !isExisted {
+		ctx.JSON(http.StatusBadRequest, InvalidRequestResponse())
+	}
 
-	ctx.JSON(http.StatusOK, gin.H{"data": "nothin'"})
+	id, err := strconv.Atoi(val)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, InvalidRequestResponse())
+	}
 
-}
+	if _, ok := db[id]; ok {
 
-func PrintThingsd() {
-	fmt.Println("hellow worlds")
+	}
+
+	ctx.JSON(http.StatusOK, UploadCompleteResponse())
+
 }
