@@ -30,11 +30,11 @@ func InitDB() {
 	json.Unmarshal([]byte(bytesJSON), &db)
 }
 
-// TODO: HoangLe [Aug-21]: Enable later
-// func GetEntry(entry string) (string, bool) {
-// 	if val, existed := db[entry]; existed {
-// 		return "got", existed
-// 	} else {
-// 		return "", existed
-// 	}
-// }
+func GetEntry(entry string) (string, bool) {
+	if val, existed := db[entry]; existed {
+		return val.(string), existed
+	} else {
+		return "", existed
+	}
+
+}
