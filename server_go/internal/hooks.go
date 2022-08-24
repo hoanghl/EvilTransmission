@@ -32,7 +32,7 @@ func GetRes(ctx *gin.Context) {
 			ctx.Data(http.StatusOK, "image", data)
 		}
 	} else {
-		ctx.JSON(http.StatusOK, UploadCompleteResponse())
+		ctx.JSON(http.StatusOK, InvalidResIDResponse())
 	}
 
 }

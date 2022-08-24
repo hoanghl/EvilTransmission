@@ -1,31 +1,22 @@
 package internal
 
-import "github.com/gin-gonic/gin"
+import (
+	"net/http"
 
-type Response struct {
-	code    int
-	message string
-}
-
-var responses = 
+	"github.com/gin-gonic/gin"
+)
 
 func InvalidRequestResponse() gin.H {
-	code := http.Sta	
-
-	return gin.H{"message": message}
+	return gin.H{"code": http.StatusBadRequest, "message": "Request invalid"}
 
 }
 
 func UploadCompleteResponse() gin.H {
-	message := 200, "Resources upload complete"
-
-	return gin.H{"code": code, "message": message}
+	return gin.H{"code": http.StatusOK, "message": "Resources upload complete"}
 
 }
 
 func InvalidResIDResponse() gin.H {
-	message := http.Stat, "Invalid resource ID"
-
-	return gin.H{"code": code, "message": message}
+	return gin.H{"code": http.StatusBadRequest, "message": "Invalid resource ID"}
 
 }
