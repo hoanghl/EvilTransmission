@@ -20,3 +20,8 @@ func InvalidResIDResponse() gin.H {
 	return gin.H{"code": http.StatusBadRequest, "message": "Invalid resource ID"}
 
 }
+
+func InternalErrDResponse() gin.H {
+	return gin.H{"code": http.StatusInternalServerError, "message": "Internal error"}
+
+}

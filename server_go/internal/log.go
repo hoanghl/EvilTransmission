@@ -6,10 +6,13 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func GetLog() *logrus.Logger {
+var logger = GetLog(logrus.DebugLevel)
+
+func GetLog(logLevel logrus.Level) *logrus.Logger {
+
 	return &logrus.Logger{
 		Out:   os.Stderr,
-		Level: logrus.DebugLevel,
+		Level: logLevel,
 		Formatter: &logrus.TextFormatter{
 			DisableColors:   false,
 			TimestampFormat: "2006-01-02 15:04:05",

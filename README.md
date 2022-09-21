@@ -22,13 +22,33 @@ This stage include very basic functions for both FE and BE.
 - [x] Design API endpoints
 - [ ] Back-end
   - [ ] Implement endpoints
-  - [ ] Implement encrypt all data, decrypt on-demand
   - [ ] Implement server using simple JSON
 
-- [ ] Fron-end
-  - [ ] Implement endpoints
+- [ ] Front-end
+  - [ ] Implement simple UI that selects file from smartphone to upload
+  - [ ] Fetch thumbnail, fetch video
 
 
 ### 5.2. Stage 2: Security improvement
 
-This stage is expected to leverage security of system.
+This stage is expected to leverage security of system including protocol, data storage...
+
+- 2-step encryption: encrypt payload and encrypt message itself
+- Resources stored in system are encrypted also
+
+- [ ] Back-end
+  - [ ] Implement encrypt all data, decrypt on-demand
+
+- [ ] Front-end
+  - [ ] Exchange keys
+  - [ ] Encrypt/Decrypt message before/after sending
+  - [ ] Decrypt payload
+
+### 5.3. Stage 3: UI and performance improvement
+
+This stage aims at improving UI at front-end and performance in genenral
+
+- [ ] Front-end
+  - [ ] 
+- [ ] Back-end
+  - [ ] Send file by chunks

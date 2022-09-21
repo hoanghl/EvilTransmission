@@ -18,9 +18,11 @@ func InitServer() {
 	r = gin.Default()
 
 	// Routing
-	r.GET("/res/:rid", GetRes)
+	r.GET("/res/", GetRes)
 }
 
 func StartServer() {
-	r.Run(fmt.Sprintf(":%d", Conf.PORT))
+	port, _ := os.LookupEnv("PORT")
+
+	r.Run(fmt.Sprintf(":%s", port))
 }

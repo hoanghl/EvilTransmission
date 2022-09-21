@@ -1,51 +1,34 @@
 package internal
 
 import (
-	"os"
+	"fmt"
+	"log"
+	"os/exec"
 	"path/filepath"
+	"strings"
 
-	"gopkg.in/yaml.v3"
+	"github.com/joho/godotenv"
 )
 
-type config struct {
-	PORT     int    `yaml:"PORT"`
-	PATH_RES string `yaml:"PATH_RES"`
-}
-
-var Conf = config{}
-
-func (conf *config) loadConfig() *config {
-	pathRoot, found := os.LookupEnv("ROOTPATH")
-	if !found {
-		logger.Error("Env not found: ROOTPATH")
-		os.Exit(1)
-	}
-
-	configPath := filepath.Join(pathRoot, "configs/configs.yaml")
-	if _, err := os.Stat(configPath); os.IsNotExist(err) {
-		logger.Errorf("Path to config not existed: %s", configPath)
-	}
-
-	buff, err := os.ReadFile(configPath)
-	if err != nil {
-		return nil
-	}
-
-	err = yaml.Unmarshal(buff, conf)
-	if err != nil {
-		logger.Errorf("Parse config file error: ", err)
-		return nil
-	}
-
-	return conf
-}
-
 func Initialize() {
-	// Get configs
-	Conf = *Conf.loadConfig()
+	// Load env
+	err := godotenv.Load(".env")
+	if err != nil {
+		log.Fatal()
+	}
 
 	//Initialize components
 	InitServer()
 	InitDB()
 
+}
+
+func ExtractThumbnail(pathVideo string) {
+	// Create path for storing thumbnail
+	pathWithoutExt := strings.TrimSuffix(pathVideo, filepath.Ext(pathVideo))
+	path_thumbnail := fmt.Sprintf("%s_thumb.png", pathWithoutExt)
+
+	// Extract thumbnail from video
+	command_args := fmt.Sprintf("-ss 00:00:02 -i %s -frames:v 1 %s", pathVideo, path_thumbnail)
+	exec.Command("ffmpeg", strings.Split(command_args, " ")...).Output()
 }

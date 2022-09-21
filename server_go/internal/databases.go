@@ -11,8 +11,9 @@ var db map[string]interface{}
 
 func InitDB() {
 	pathRoot, _ := os.LookupEnv("ROOTPATH")
+	pathRes, _ := os.LookupEnv("PATH_RES")
 
-	pathDb := filepath.Join(pathRoot, Conf.PATH_RES)
+	pathDb := filepath.Join(pathRoot, pathRes)
 	if _, err := os.Stat(pathDb); os.IsNotExist(err) {
 		logger.Errorf("Path to res not existed: %s", pathDb)
 	}
