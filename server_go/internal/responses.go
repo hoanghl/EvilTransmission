@@ -1,13 +1,14 @@
 package internal
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
-func InvalidRequestResponse() gin.H {
-	return gin.H{"code": http.StatusBadRequest, "message": "Request invalid"}
+func InvalidRequestResponse(msg string) gin.H {
+	return gin.H{"code": http.StatusBadRequest, "message": fmt.Sprintf("Request invalid: %s", msg)}
 
 }
 
@@ -21,7 +22,7 @@ func InvalidResIDResponse() gin.H {
 
 }
 
-func InternalErrDResponse() gin.H {
-	return gin.H{"code": http.StatusInternalServerError, "message": "Internal error"}
+func InternalErrDResponse(msg string) gin.H {
+	return gin.H{"code": http.StatusInternalServerError, "message": fmt.Sprintf("Internal error: %s", msg)}
 
 }

@@ -1,0 +1,8 @@
+PORT: 30556
+DB:
+  DB_PORT: 2345
+  USER: postgres
+  PASS: qwe
+  DB_NAME: eviltrans
+  TABLE: resources
+  HOST: 192.168.0.156

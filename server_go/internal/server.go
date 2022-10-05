@@ -19,6 +19,7 @@ func InitServer() {
 
 	// Routing
 	r.GET("/res/", GetRes)
+	r.POST("/res/", PostRes)
 }
 
 func StartServer() {
