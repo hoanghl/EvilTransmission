@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"crypto/sha256"
 	"fmt"
 	"log"
 	"os"
@@ -48,4 +49,11 @@ func ExtractThumbnail(pathVideo string) {
 	// Extract thumbnail from video
 	command_args := fmt.Sprintf("-ss 00:00:02 -i %s -frames:v 1 %s", pathVideo, path_thumbnail)
 	exec.Command("ffmpeg", strings.Split(command_args, " ")...).Output()
+}
+
+func GetFileHash(data []byte) ([]byte, error) {
+	hasher := sha256.New()
+	hasher.Write(data)
+
+	return hasher.Sum(nil), nil
 }

@@ -1,7 +1,7 @@
 PORT: 30556
 DB:
-  DB_PORT: 2345
-  USER: postgres
+  DB_PORT: 5432
+  USER: hoangle
   PASS: qwe
   DB_NAME: eviltrans
   TABLE: resources

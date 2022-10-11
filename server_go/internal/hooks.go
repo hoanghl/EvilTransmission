@@ -1,14 +1,29 @@
 package internal
 
 import (
+	"bytes"
+	"database/sql"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strconv"
+	"strings"
+	"time"
 
 	"github.com/google/uuid"
 
 	"github.com/gin-gonic/gin"
+)
+
+type REQ_TYPE string
+
+const (
+	IMG_JPG  REQ_TYPE = "image/JPG"
+	IMG_JPEG REQ_TYPE = "image/JPEG"
+	IMG_PNG  REQ_TYPE = "image/png"
+	VID_MP4  REQ_TYPE = "video/mp4"
 )
 
 func GetRes(ctx *gin.Context) {
@@ -35,59 +50,72 @@ func GetRes(ctx *gin.Context) {
 	}
 	fmt.Print(thumbnail)
 
-	// if path, ok := db[rid]; ok {
-	// 	if thumbnail {
-	// 		ext := filepath.Ext(path.(string))
+	// Check existence of resid in db and in storage
+	entry, err := Conf.DB.GetEntry(DBEntry{ResID: rid})
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, InternalErrResponse(err.Error()))
+		logger.Error(err)
+		return
+	}
 
-	// 		logger.Infof("Extension: %s", ext)
+	logger.Infof("Found entry: %v+", entry)
 
-	// 		if !strings.HasSuffix(ext, ".mp4") {
-	// 			ctx.JSON(http.StatusInternalServerError, InternalErrDResponse("Image cannot exist thumbnail"))
-	// 			logger.Error(err)
-	// 			return
+	if _, existed := os.Stat(entry.Path); existed == nil {
+		ctx.JSON(http.StatusInternalServerError, InternalErrResponse("Cannot read resource"))
+		logger.Error(err)
+		return
+	}
 
-	// 		}
-	// 		pathWithoutExt := strings.TrimSuffix(path.(string), filepath.Ext(path.(string)))
-	// 		pathThumb := fmt.Sprintf("%s_thumb.png", pathWithoutExt)
-	// 		data, err := os.ReadFile(pathThumb)
-	// 		if err != nil {
-	// 			ctx.JSON(http.StatusInternalServerError, InternalErrDResponse("Cannot read resource"))
-	// 			logger.Error(err)
-	// 			return
-	// 		}
+	// Start processing
+	if thumbnail {
+		ext := filepath.Ext(entry.Path)
 
-	// 		ctx.Data(http.StatusOK, "image", data)
+		logger.Infof("Extension: %s", ext)
 
-	// 	} else {
-	// 		if _, existed := os.Stat(path.(string)); existed == nil {
-	// 			data, err := os.ReadFile(path.(string))
-	// 			if err != nil {
-	// 				ctx.JSON(http.StatusInternalServerError, InternalErrDResponse("Cannot read resource"))
-	// 				logger.Error(err)
-	// 				return
-	// 			}
+		if !strings.HasSuffix(ext, ".mp4") {
+			ctx.JSON(http.StatusInternalServerError, InternalErrResponse("Image cannot exist thumbnail"))
+			logger.Error(err)
+			return
 
-	// 			logger.Infof("len data: %d", len(data))
+		}
+		pathWithoutExt := strings.TrimSuffix(entry.Path, filepath.Ext(entry.Path))
+		pathThumb := fmt.Sprintf("%s_thumb.png", pathWithoutExt)
+		data, err := os.ReadFile(pathThumb)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, InternalErrResponse("Cannot read resource"))
+			logger.Error(err)
+			return
+		}
 
-	// 			ext := filepath.Ext(path.(string))
-	// 			if strings.HasSuffix(ext, "mp4") {
-	// 				ctx.Data(http.StatusOK, "video", data)
-	// 				logger.Info("Sent video")
-	// 			} else {
-	// 				ctx.Data(http.StatusOK, "image", data)
-	// 				logger.Info("Sent image")
-	// 			}
-	// 		} else {
-	// 			ctx.JSON(http.StatusInternalServerError, InternalErrDResponse("Cannot read resource"))
-	// 			logger.Errorf("Cannot read resource: %s", path.(string))
-	// 			return
-	// 		}
+		ctx.Data(http.StatusOK, "image", data)
 
-	// 	}
+	} else {
+		if _, existed := os.Stat(entry.Path); existed == nil {
+			data, err := os.ReadFile(entry.Path)
+			if err != nil {
+				ctx.JSON(http.StatusInternalServerError, InternalErrResponse("Cannot read resource"))
+				logger.Error(err)
+				return
+			}
 
-	// } else {
-	// 	ctx.JSON(http.StatusOK, InvalidResIDResponse())
-	// }
+			logger.Infof("len data: %d", len(data))
+
+			ext := filepath.Ext(entry.Path)
+			if strings.HasSuffix(ext, "mp4") {
+				ctx.Data(http.StatusOK, "video", data)
+				logger.Info("Sent video")
+			} else {
+				ctx.Data(http.StatusOK, "image", data)
+				logger.Info("Sent image")
+			}
+		} else {
+			ctx.JSON(http.StatusInternalServerError, InternalErrResponse("Cannot read resource"))
+			logger.Errorf("Cannot read resource: %s", entry.Path)
+			return
+		}
+
+	}
+
 }
 
 func PostRes(ctx *gin.Context) {
@@ -104,41 +132,82 @@ func PostRes(ctx *gin.Context) {
 		return
 	}
 	fileType := form.Value["type"][0]
-	file := form.File["file"][0]
+	fileHeader := form.File["file"][0]
 
+	// Get hash and check
+	file, err := fileHeader.Open()
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, InternalErrResponse("Cannot opean loaded file"))
+		logger.Error(err)
+		return
+	}
+	defer file.Close()
+
+	var buf bytes.Buffer
+	io.Copy(&buf, file)
+	hash, err := GetFileHash(buf.Bytes())
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, InternalErrResponse("Cannot opean loaded file"))
+		logger.Error(err)
+		return
+	}
+	_, err = Conf.DB.GetEntry(DBEntry{Hashval: hash})
+
+	if err != nil && err != sql.ErrNoRows {
+		ctx.JSON(http.StatusInternalServerError, InternalErrResponse("Cannot query resource"))
+		logger.Error(err)
+		return
+	} else if err == nil {
+		ctx.JSON(http.StatusInternalServerError, InternalErrResponse("Resource existed"))
+		logger.Error(err)
+		return
+	}
+
+	// Save uploaded file
 	err = os.MkdirAll("uploads", os.ModePerm)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, InternalErrDResponse("Cannot create directory to store things"))
+		ctx.JSON(http.StatusInternalServerError, InternalErrResponse("Cannot create directory to store things"))
 		logger.Error(err)
 		return
 	}
 
 	var pathRes string
 	fileID := uuid.NewString()
-	if fileType == "image/jpg" || fileType == "image/jpeg" {
+	switch fileType {
+	case string(IMG_JPG):
+	case string(IMG_JPEG):
 		pathRes = fmt.Sprintf("uploads/%s.jpg", fileID)
-	} else if fileType == "image/png" {
-		pathRes = fmt.Sprintf("uploads/%s.", fileID)
-	} else if fileType == "image/mp4" {
+	case string(VID_MP4):
 		pathRes = fmt.Sprintf("uploads/%s.mp4", fileID)
-	} else {
+	default:
 		ctx.JSON(http.StatusInternalServerError, InvalidRequestResponse("Incorrect value for field 'fileType'"))
 		logger.Error(err)
 		return
 	}
 
-	err = ctx.SaveUploadedFile(file, pathRes)
+	err = ctx.SaveUploadedFile(fileHeader, pathRes)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, InternalErrDResponse("Cannot save resource file in server"))
+		ctx.JSON(http.StatusInternalServerError, InternalErrResponse("Cannot save resource file in server"))
 		logger.Error(err)
 		return
 	}
 
 	// Create thumbnail
-	if fileType == "image/mp4" {
+	if fileType == string(VID_MP4) {
 		ExtractThumbnail(pathRes)
 	}
 
+	// Send info to server
+	err = Conf.DB.InsertEntry(DBEntry{
+		ResID:      fileID,
+		Path:       pathRes,
+		LastUpdate: time.Now(),
+	})
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, InternalErrResponse("Cannot insert resource to database"))
+		logger.Error(err)
+		return
+	}
 	ctx.JSON(http.StatusOK, UploadCompleteResponse())
 
 }

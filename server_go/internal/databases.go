@@ -2,6 +2,8 @@ package internal
 
 import (
 	"database/sql"
+	"encoding/hex"
+	"errors"
 	"fmt"
 	"time"
 
@@ -9,9 +11,10 @@ import (
 )
 
 type DBEntry struct {
-	resID      string
-	path       string
-	lastUpdate time.Time
+	ResID      string
+	Path       string
+	Hashval    []byte
+	LastUpdate time.Time
 }
 
 type Database struct {
@@ -31,59 +34,89 @@ func (db *Database) initConn() *sql.DB {
 	conn, err := sql.Open("postgres", connStr)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			logger.Fatalln("No matched entry found")
+			logger.Errorln("No matched entry found")
 		} else {
-			logger.Fatal(err)
+			logger.Error(err)
 		}
 		return nil
 	}
 	return conn
 }
 
-func (db *Database) GetEntry(resid string) *DBEntry {
+var Entry DBEntry
+
+func (db *Database) GetEntry(entryQuery DBEntry) (DBEntry, error) {
+	retEntry := DBEntry{}
+
 	// Init connection
 	conn := db.initConn()
 	if conn == nil {
-		return nil
+		return retEntry, errors.New("cannot establish DB connection")
 	}
 	defer conn.Close()
 
 	// Query
 	var resID, path, _lastUpdate string
-	row := conn.QueryRow(fmt.Sprintf("SELECT resid, path, lastupdate FROM %s WHERE resid = $1", db.DB_NAME), resid)
-	if err := row.Scan(&resID, &path, &_lastUpdate); err != nil {
-		logger.Fatal(err)
-		return nil
+	var hashVal []byte
+	var row *sql.Row = nil
+	if entryQuery.ResID != "" {
+		query := fmt.Sprintf("SELECT resid, path, lastupdate, hashval FROM %s WHERE resid = $1", db.TABLE)
+		row = conn.QueryRow(query, entryQuery.ResID)
+	} else if len(entryQuery.Hashval) != 0 {
+		query := fmt.Sprintf("SELECT resid, path, lastupdate FROM %s WHERE hashval = $1", db.TABLE)
+		row = conn.QueryRow(query, hex.EncodeToString(entryQuery.Hashval))
+	} else {
+		logger.Error("Cannot proceed DB query")
+		return retEntry, errors.New("invalid DB query")
+	}
+	if err := row.Scan(&resID, &path, &_lastUpdate, &hashVal); err != nil {
+		logger.Errorf("Error as querying: %s", err)
+		return DBEntry{}, err
 	}
 	lastUpdate, err := time.Parse(time.RFC3339, _lastUpdate)
 	if err != nil {
-		logger.Fatalf("Err as parsing to time: %s", err)
-		return nil
+		logger.Errorf("Err as parsing to time: %s", err)
+		return DBEntry{}, err
 	}
 
-	entry := &DBEntry{
-		resID:      resID,
-		path:       path,
-		lastUpdate: lastUpdate,
-	}
+	return DBEntry{
+		ResID:      resID,
+		Path:       path,
+		LastUpdate: lastUpdate,
+		Hashval:    hashVal,
+	}, nil
 
-	return entry
 }
 
-func (db *Database) InsertEntry(entry DBEntry) {
+func (db *Database) InsertEntry(entry DBEntry) error {
 	// Init connection
 	conn := db.initConn()
 	if conn == nil {
-		return
+		return errors.New("cannot establish DB connection")
 	}
 	defer conn.Close()
 
 	_, err := conn.Exec(
-		fmt.Sprintf("INSERT into %s(resid, path, lastupdate) VALUES ($1, $2, $3)", db.DB_NAME),
-		entry.resID, entry.path, entry.lastUpdate.Local().Format(time.RFC3339),
+		fmt.Sprintf("INSERT into %s(resid, path, lastupdate, hashval) VALUES ($1, $2, $3, $4)", db.TABLE),
+		entry.ResID, entry.Path, entry.LastUpdate.Local().Format(time.RFC3339), hex.EncodeToString(entry.Hashval),
 	)
-	if err != nil {
-		logger.Fatalf("An error occured while executing query: %v", err)
-	}
+	return err
 
+}
+
+func (db *Database) InitConn() *sql.DB {
+	// Init connection to database
+	connStr := fmt.Sprintf(
+		"postgresql://%s:%s@%s:%d/%s?sslmode=disable",
+		db.USER, db.PASS, db.HOST, db.PORT, db.DB_NAME)
+	conn, err := sql.Open("postgres", connStr)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			logger.Errorln("No matched entry found")
+		} else {
+			logger.Error(err)
+		}
+		return nil
+	}
+	return conn
 }

@@ -22,7 +22,7 @@ func InvalidResIDResponse() gin.H {
 
 }
 
-func InternalErrDResponse(msg string) gin.H {
+func InternalErrResponse(msg string) gin.H {
 	return gin.H{"code": http.StatusInternalServerError, "message": fmt.Sprintf("Internal error: %s", msg)}
 
 }
