@@ -22,7 +22,7 @@ This stage include very basic functions for both FE and BE.
 - [x] Design API endpoints
 - [ ] Back-end
   - [ ] Implement endpoints
-  - [ ] Implement server using simple JSON
+  - [ ] Implement server using Postgres
 
 - [ ] Front-end
   - [ ] Implement simple UI that selects file from smartphone to upload

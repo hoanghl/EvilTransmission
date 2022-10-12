@@ -5,4 +5,4 @@ DB:
   PASS: qwe
   DB_NAME: eviltrans
   TABLE: resources
-  HOST: 192.168.0.156
+  HOST: localhost

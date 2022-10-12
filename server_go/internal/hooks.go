@@ -145,21 +145,15 @@ func PostRes(ctx *gin.Context) {
 
 	var buf bytes.Buffer
 	io.Copy(&buf, file)
-	hash, err := GetFileHash(buf.Bytes())
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, InternalErrResponse("Cannot opean loaded file"))
-		logger.Error(err)
-		return
-	}
-	_, err = Conf.DB.GetEntry(DBEntry{Hashval: hash})
+	hash := GetFileHash(buf.Bytes())
 
+	_, err = Conf.DB.GetEntry(DBEntry{Hashval: hash})
 	if err != nil && err != sql.ErrNoRows {
 		ctx.JSON(http.StatusInternalServerError, InternalErrResponse("Cannot query resource"))
 		logger.Error(err)
 		return
 	} else if err == nil {
 		ctx.JSON(http.StatusInternalServerError, InternalErrResponse("Resource existed"))
-		logger.Error(err)
 		return
 	}
 
@@ -202,6 +196,7 @@ func PostRes(ctx *gin.Context) {
 		ResID:      fileID,
 		Path:       pathRes,
 		LastUpdate: time.Now(),
+		Hashval:    hash,
 	})
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, InternalErrResponse("Cannot insert resource to database"))

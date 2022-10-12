@@ -51,9 +51,9 @@ func ExtractThumbnail(pathVideo string) {
 	exec.Command("ffmpeg", strings.Split(command_args, " ")...).Output()
 }
 
-func GetFileHash(data []byte) ([]byte, error) {
+func GetFileHash(data []byte) []byte {
 	hasher := sha256.New()
 	hasher.Write(data)
 
-	return hasher.Sum(nil), nil
+	return hasher.Sum(nil)
 }

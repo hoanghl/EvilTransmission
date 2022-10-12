@@ -60,10 +60,14 @@ func (db *Database) GetEntry(entryQuery DBEntry) (DBEntry, error) {
 	var hashVal []byte
 	var row *sql.Row = nil
 	if entryQuery.ResID != "" {
+		logger.Info("Query with: ResID")
+
 		query := fmt.Sprintf("SELECT resid, path, lastupdate, hashval FROM %s WHERE resid = $1", db.TABLE)
 		row = conn.QueryRow(query, entryQuery.ResID)
 	} else if len(entryQuery.Hashval) != 0 {
-		query := fmt.Sprintf("SELECT resid, path, lastupdate FROM %s WHERE hashval = $1", db.TABLE)
+		logger.Info("Query with: Hashval")
+
+		query := fmt.Sprintf("SELECT resid, path, lastupdate, hashval FROM %s WHERE hashval = $1", db.TABLE)
 		row = conn.QueryRow(query, hex.EncodeToString(entryQuery.Hashval))
 	} else {
 		logger.Error("Cannot proceed DB query")
