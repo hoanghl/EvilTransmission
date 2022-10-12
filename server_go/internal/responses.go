@@ -12,8 +12,8 @@ func InvalidRequestResponse(msg string) gin.H {
 
 }
 
-func UploadCompleteResponse() gin.H {
-	return gin.H{"code": http.StatusOK, "message": "Resources upload complete"}
+func UploadCompleteResponse(ResID string) gin.H {
+	return gin.H{"code": http.StatusOK, "message": "Resources upload complete", "resid": ResID}
 
 }
 

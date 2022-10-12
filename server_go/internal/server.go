@@ -23,7 +23,5 @@ func InitServer() {
 }
 
 func StartServer() {
-	port, _ := os.LookupEnv("PORT")
-
-	r.Run(fmt.Sprintf(":%s", port))
+	r.Run(fmt.Sprintf(":%d", Conf.PORT))
 }

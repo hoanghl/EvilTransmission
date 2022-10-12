@@ -48,7 +48,6 @@ func GetRes(ctx *gin.Context) {
 		logger.Error("Invalid value/type for field 'thumbnail'")
 		return
 	}
-	fmt.Print(thumbnail)
 
 	// Check existence of resid in db and in storage
 	entry, err := Conf.DB.GetEntry(DBEntry{ResID: rid})
@@ -58,20 +57,18 @@ func GetRes(ctx *gin.Context) {
 		return
 	}
 
-	logger.Infof("Found entry: %v+", entry)
+	logger.Infof("Found entry: %s", entry.ResID)
 
-	if _, existed := os.Stat(entry.Path); existed == nil {
+	if _, existed := os.Stat(entry.Path); existed != nil {
 		ctx.JSON(http.StatusInternalServerError, InternalErrResponse("Cannot read resource"))
-		logger.Error(err)
 		return
 	}
 
 	// Start processing
 	if thumbnail {
+		logger.Info("Query: thumbnail")
+
 		ext := filepath.Ext(entry.Path)
-
-		logger.Infof("Extension: %s", ext)
-
 		if !strings.HasSuffix(ext, ".mp4") {
 			ctx.JSON(http.StatusInternalServerError, InternalErrResponse("Image cannot exist thumbnail"))
 			logger.Error(err)
@@ -90,6 +87,8 @@ func GetRes(ctx *gin.Context) {
 		ctx.Data(http.StatusOK, "image", data)
 
 	} else {
+		logger.Info("Query: entry")
+
 		if _, existed := os.Stat(entry.Path); existed == nil {
 			data, err := os.ReadFile(entry.Path)
 			if err != nil {
@@ -97,8 +96,6 @@ func GetRes(ctx *gin.Context) {
 				logger.Error(err)
 				return
 			}
-
-			logger.Infof("len data: %d", len(data))
 
 			ext := filepath.Ext(entry.Path)
 			if strings.HasSuffix(ext, "mp4") {
@@ -203,6 +200,6 @@ func PostRes(ctx *gin.Context) {
 		logger.Error(err)
 		return
 	}
-	ctx.JSON(http.StatusOK, UploadCompleteResponse())
+	ctx.JSON(http.StatusOK, UploadCompleteResponse(fileID))
 
 }

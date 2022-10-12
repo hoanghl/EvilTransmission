@@ -3,13 +3,11 @@ package internal
 import (
 	"crypto/sha256"
 	"fmt"
-	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
 
-	"github.com/joho/godotenv"
 	"gopkg.in/yaml.v3"
 )
 
@@ -21,12 +19,6 @@ type Configs struct {
 var Conf Configs
 
 func Initialize() {
-	// Load env
-	err := godotenv.Load(".env")
-	if err != nil {
-		log.Fatal("No .env found or got error")
-	}
-
 	// Load config
 	pathConf := "configs.yaml"
 	file, err := os.ReadFile(pathConf)
