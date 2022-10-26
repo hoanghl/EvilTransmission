@@ -44,7 +44,6 @@ func GetRes(ctx *gin.Context) {
 		logger.Info("Sent list of resID")
 
 		return
-
 	}
 
 	if rid == "" {

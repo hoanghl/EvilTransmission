@@ -55,7 +55,7 @@ func (db *Database) GetAllEntry() ([]string, error) {
 
 	// Query
 
-	rows, err := conn.Query("SELECT resid FROM $1", db.DB_NAME)
+	rows, err := conn.Query(fmt.Sprintf("SELECT resid FROM %s", db.TABLE))
 	if err != nil {
 		logger.Errorf("Error as querying: %s", err)
 		return nil, err

@@ -187,3 +187,4 @@ res/*
 .vscode/*
 !.vscode/settings.json
 uploads
+tests

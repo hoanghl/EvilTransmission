@@ -9,6 +9,9 @@ pylint = "*"
 isort = "*"
 autopep8 = "*"
 flake8 = "*"
+simple-websocket = "*"
+gunicorn = "*"
+loguru = "*"
 
 [dev-packages]
 
