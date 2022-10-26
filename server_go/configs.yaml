@@ -1,7 +1,7 @@
 PORT: 30556
 DB:
-  DB_PORT: 5432
-  USER: hoangle
+  DB_PORT: 30555
+  USER: evil
   PASS: qwe
   DB_NAME: eviltrans
   TABLE: resources

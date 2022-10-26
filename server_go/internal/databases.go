@@ -45,6 +45,36 @@ func (db *Database) initConn() *sql.DB {
 
 var Entry DBEntry
 
+func (db *Database) GetAllEntry() ([]string, error) {
+	// Init connection
+	conn := db.initConn()
+	if conn == nil {
+		return nil, errors.New("cannot establish DB connection")
+	}
+	defer conn.Close()
+
+	// Query
+
+	rows, err := conn.Query("SELECT resid FROM $1", db.DB_NAME)
+	if err != nil {
+		logger.Errorf("Error as querying: %s", err)
+		return nil, err
+	}
+
+	ret := []string{}
+	var s string
+	for rows.Next() {
+		if err := rows.Scan(&s); err != nil {
+			logger.Errorf("Error as querying: %s", err)
+			break
+		}
+
+		ret = append(ret, s)
+	}
+
+	return ret, err
+}
+
 func (db *Database) GetEntry(entryQuery DBEntry) (DBEntry, error) {
 	retEntry := DBEntry{}
 
