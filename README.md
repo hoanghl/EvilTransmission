@@ -20,9 +20,9 @@ At first, **Python** is used to develop server side, but as I was introduced abo
 This stage include very basic functions for both FE and BE.
 
 - [x] Design API endpoints
-- [ ] Back-end
-  - [ ] Implement endpoints
-  - [ ] Implement server using Postgres
+- [x] Back-end
+  - [x] Implement endpoints
+  - [x] Implement server using Postgres
 
 - [ ] Front-end
   - [ ] Implement simple UI that selects file from smartphone to upload
