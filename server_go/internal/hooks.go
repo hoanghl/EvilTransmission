@@ -30,13 +30,28 @@ func GetRes(ctx *gin.Context) {
 
 	// Get query args and do some sanity
 	rid := ctx.Query("rid")
+	thumbnail_ := ctx.Query("thumbnail")
+
+	if rid == "" && thumbnail_ == "" {
+		// Get all entries' resid
+		entries, err := Conf.DB.GetAllEntry()
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, ErrReqResponse(err))
+			return
+		}
+		ctx.JSON(http.StatusOK, entries)
+
+		logger.Info("Sent list of resID")
+
+		return
+	}
+
 	if rid == "" {
 		ctx.JSON(http.StatusBadRequest, InvalidRequestResponse("Request not contain field 'rid'"))
 		logger.Error("Request not contain field 'rid'")
 		return
 	}
 
-	thumbnail_ := ctx.Query("thumbnail")
 	if thumbnail_ == "" {
 		ctx.JSON(http.StatusBadRequest, InvalidRequestResponse("Request not contain field 'thumbnail'"))
 		logger.Error("Request not contain field 'thumbnail'")

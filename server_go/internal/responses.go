@@ -17,6 +17,11 @@ func UploadCompleteResponse(ResID string) gin.H {
 
 }
 
+func ErrReqResponse(err error) gin.H {
+	return gin.H{"code": http.StatusInternalServerError, "message": fmt.Sprintf("Err as querying: %s", err)}
+
+}
+
 func InvalidResIDResponse() gin.H {
 	return gin.H{"code": http.StatusBadRequest, "message": "Invalid resource ID"}
 

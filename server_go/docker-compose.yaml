@@ -10,9 +10,10 @@ services:
     ports:
       - 30554:5432
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=qwe
-      - POSTGRES_DB=eviltrans
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    restart: always
   pgadmin:
     image: imageName
     container_name: name
@@ -23,6 +24,7 @@ services:
     environment:
       - PGADMIN_DEFAULT_EMAIL=evil@abc.com
       - PGADMIN_DEFAULT_PASSWORD=qwe
+    restart: always
 
 networks:
   eviltrans:
