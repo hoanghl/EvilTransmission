@@ -21,13 +21,13 @@ This stage include very basic functions for both FE and BE.
 
 - [x] Design API endpoints
 - [x] Back-end
+
   - [x] Implement endpoints
   - [x] Implement server using Postgres
 
 - [ ] Front-end
   - [ ] Implement simple UI that selects file from smartphone to upload
   - [ ] Fetch thumbnail, fetch video
-
 
 ### 5.2. Stage 2: Security improvement
 
@@ -49,6 +49,7 @@ This stage is expected to leverage security of system including protocol, data s
 This stage aims at improving UI at front-end and performance in genenral
 
 - [ ] Front-end
-  - [ ] 
+  - [ ]
 - [ ] Back-end
   - [ ] Send file by chunks
+  - [ ] Apply DL-based feature extractor to filter out similar image/video

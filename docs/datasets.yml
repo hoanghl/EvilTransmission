@@ -69,6 +69,34 @@ paths:
                 $ref: "#/components/schemas/ListFiles"
         "401":
           $ref: "#/components/responses/UnauthorizedResponse"
+
+  /encryption:
+    get:
+      summary: Get AES key in binary data
+      tags:
+        - Encryption
+      description: |
+        Get AES key
+      parameters:
+        - name: key
+          required: true
+          in: params
+          description: RSA Client public key
+          schema:
+            type: string
+            format: binary
+      responses:
+        "200":
+          description: AES key in binary data encrypted with RSA public key
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        "401":
+          $ref: "#/components/responses/UnauthorizedResponse"
+        "500":
+          $ref: "#/components/responses/InternalErrResponse"
 components:
   responses:
     ## Sucesses
@@ -87,6 +115,12 @@ components:
             $ref: "#/components/schemas/ResponseMessage"
     UnauthorizedResponse:
       description: Not allowed to access.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ResponseMessage"
+    InternalErrResponse:
+      description: Internal error.
       content:
         application/json:
           schema:
