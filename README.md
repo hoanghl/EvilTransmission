@@ -11,18 +11,46 @@ Please visit [Client](Client/README.md) for more information.
 
 ## 3. Server
 
-**Python** is used to develop server side. I don't use any existing framework but building it from scratch with builtin Python libraries.
+At first, **Python** is used to develop server side, but as I was introduced about _Golang_, I was totally persuaded. Not only the elegance but also the speed, the siplicity surprise me a lot.
 
-Please visit [a relative link](Server/README.md) for more information.
+## 4. Features
 
-## 4. Protocol
+### 5.1. Stage 1: Basic components
 
-I develop a dedicated TCP protocol to exchange data between client and server. My proposed one, namely **Protocol 3Vil** is inspired from _MQTT_.
+This stage include very basic functions for both FE and BE.
 
-## 5. Features
+- [x] Design API endpoints
+- [x] Back-end
 
-- [x] Basic components for both client and server
-- [x] Basic components for protocol
-- [ ] Upgrade protocol to send both images and videos
-- [ ] Add encryption
-- [ ] Beautify client app
+  - [x] Implement endpoints
+  - [x] Implement server using Postgres
+
+- [ ] Front-end
+  - [ ] Implement simple UI that selects file from smartphone to upload
+  - [ ] Fetch thumbnail, fetch video
+
+### 5.2. Stage 2: Security improvement
+
+This stage is expected to leverage security of system including protocol, data storage...
+
+- 2-step encryption: encrypt payload and encrypt message itself
+- Resources stored in system are encrypted also
+
+- [ ] Back-end
+
+  - [ ] Implement encrypt all data, decrypt on-demand
+
+- [ ] Front-end
+  - [ ] Exchange keys
+  - [ ] Encrypt/Decrypt message before/after sending
+  - [ ] Decrypt payload
+
+### 5.3. Stage 3: UI and performance improvement
+
+This stage aims at improving UI at front-end and performance in genenral
+
+- [ ] Front-end
+  - [ ]
+- [ ] Back-end
+  - [ ] Send file by chunks
+  - [ ] Apply DL-based feature extractor to filter out similar image/video
