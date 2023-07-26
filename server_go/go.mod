@@ -10,6 +10,7 @@ require (
 require (
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/lib/pq v1.10.7 // indirect
+	github.com/zenazn/pkcs7pad v0.0.0-20170308005700-253a5b1f0e03 // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 )
 

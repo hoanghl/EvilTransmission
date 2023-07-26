@@ -1,22 +1,27 @@
-drop table if exists resources;
+DROP TABLE IF EXISTS RESOURCES;
 
-create table resources(
-	id serial primary key,
-	resid varchar(200) unique not null,
-	path varchar(1000) not null,
-    hashval bytea not null,
-	lastupdate timestamptz not null
+CREATE TABLE RESOURCES(
+	ID 			SERIAL 			PRIMARY KEY
+	, RESID 	VARCHAR(200) 	UNIQUE 		NOT NULL
+	, PATH 	VARCHAR(1000) 				NOT NULL
+    , HASHVAL 	BYTEA 						NOT NULL
+	, LASTUPDATE 	TIMESTAMPTZ 			NOT NULL
 );
-set timezone TO 'Asia/Ho_Chi_Minh';
--- insert into resources(resid, path, lastupdate) values (
+SET TIMEZONE TO 'ASIA/HO_CHI_MINH';
+-- INSERT INTO RESOURCES(RESID, PATH, LASTUPDATE) VALUES (
 -- 	'493423',
--- 	'/user',
--- 	current_timestamp
+-- 	'/USER',
+-- 	CURRENT_TIMESTAMP
 -- )
 
 
--- select * from resources
+-- SELECT * FROM RESOURCES
 
--- drop database postgres
+-- DROP DATABASE POSTGRES
 
--- select * from resources
+-- SELECT * FROM 
+
+select * from resources;
+
+
+
