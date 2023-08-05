@@ -5,7 +5,7 @@ services:
     container_name: feature-matcher
     image: feature-matcher:0.1
     build: .
-    expose:
-      - 30557:8000
+    ports:
+      - 30557:30557
     volumes:
       - ./:/code

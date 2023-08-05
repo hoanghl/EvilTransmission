@@ -10,10 +10,10 @@ onnx = "*"
 onnxruntime = "*"
 uvicorn = "*"
 opencv-python = "*"
-loguru = "*"
 python-multipart = "*"
 onnxconverter-common = "*"
-Pillow = "*"
+pillow = "*"
+loguru = "*"
 
 [dev-packages]
 black = "*"
