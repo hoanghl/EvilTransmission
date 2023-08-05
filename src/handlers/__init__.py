@@ -1,0 +1,1 @@
+from .handlers import handle_image, handle_video

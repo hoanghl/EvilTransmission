@@ -1,3 +1,18 @@
 {
-    "python.pythonPath": "/Users/hoangle/.local/share/virtualenvs/EvilTransmission-uhgy5tkk/bin/python"
+  "editor.formatOnSave": true,
+  "python.analysis.typeCheckingMode": "basic",
+  "sqltools.connections": [
+    {
+      "previewLimit": 50,
+      "server": "192.168.1.7",
+      "port": 30555,
+      "driver": "PostgreSQL",
+      "name": "evil",
+      "database": "eviltrans",
+      "username": "evil"
+    }
+  ],
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.black-formatter"
+  }
 }

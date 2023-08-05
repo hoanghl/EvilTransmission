@@ -186,3 +186,8 @@ Icon
 Network Trash Folder
 Temporary Items
 .apdisk
+
+bin/
+etc/
+share/
+feats/

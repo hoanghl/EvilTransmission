@@ -1,0 +1,11 @@
+version: '3'
+
+services:
+  feature-matcher:
+    container_name: feature-matcher
+    image: feature-matcher:0.1
+    build: .
+    expose:
+      - 30557:8000
+    volumes:
+      - ./:/code
