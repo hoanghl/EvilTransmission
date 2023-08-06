@@ -1,0 +1,159 @@
+openapi: 3.0.3
+info:
+  title: EvilTransmission - OpenAPI 3.0
+  version: 0.1beta
+servers:
+  - url: http://localhost:30556/
+tags:
+  - name: Resource
+    description: Get, upload resources
+  - name: Security
+    description: Get key
+paths:
+  /res:
+    get:
+      summary: Get resource (thumbnail or file) by ID
+      tags:
+        - Resource
+      description: |
+        Get resource byt resource ID (rid).
+      parameters:
+        - name: rid
+          required: true
+          in: query
+          description: Resource ID
+          schema:
+            type: string
+        - name: thumbnail
+          in: query
+          required: true
+          description: Whether needed resource is thumbail or file
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: Successfully retrieve the list of all datasets which are available for the current user.
+          content:
+            application/mp4:
+              schema:
+                type: string
+                format: binary
+        "401":
+          $ref: "#/components/responses/UnauthorizedResponse"
+    post:
+      summary: Upload resource
+      tags:
+        - Resource
+      description: |
+        Upload single resources.
+      parameters:
+        - name: rtype
+          in: query
+          required: false
+          description: Resource ype
+          schema:
+            $ref: "#/components/schemas/MediaType"
+      requestBody:
+        required: true
+        content:
+          application/mp4:
+            schema:
+              type: string
+              format: binary
+      responses:
+        "200":
+          description: Dataset
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListFiles"
+        "401":
+          $ref: "#/components/responses/UnauthorizedResponse"
+
+  /encryption:
+    get:
+      summary: Get AES key in binary data
+      tags:
+        - Encryption
+      description: |
+        Get AES key
+      parameters:
+        - name: key
+          required: true
+          in: params
+          description: RSA Client public key
+          schema:
+            type: string
+            format: binary
+      responses:
+        "200":
+          description: AES key in binary data encrypted with RSA public key
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        "401":
+          $ref: "#/components/responses/UnauthorizedResponse"
+        "500":
+          $ref: "#/components/responses/InternalErrResponse"
+components:
+  responses:
+    ## Sucesses
+    UploadCompleteResponse:
+      description: Resources upload complete
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ResponseMessage"
+    ## Errors
+    NotFoundResponse:
+      description: The specified resource was not found.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ResponseMessage"
+    UnauthorizedResponse:
+      description: Not allowed to access.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ResponseMessage"
+    InternalErrResponse:
+      description: Internal error.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ResponseMessage"
+  schemas:
+    ResponseMessage:
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+          description: the code of response.
+        message:
+          type: string
+          description: the description of the code.
+    MediaType:
+      type: string
+      nullable: true
+      enum:
+        - image
+        - video
+      default: image
+      description: The media type of resource
+    File:
+      type: object
+      properties:
+        filename:
+          type: array
+          items:
+            type: string
+            format: binary
+    ListFiles:
+      type: array
+      items:
+        $ref: "#/components/schemas/File"
