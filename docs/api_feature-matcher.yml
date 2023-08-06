@@ -1,0 +1,43 @@
+openapi: 3.0.3
+info:
+  title: EvilTransmission - OpenAPI 3.0
+  version: 0.1beta
+servers:
+  - url: http://localhost:30557/
+tags:
+  - name: Matching
+    description: Get, upload resources
+paths:
+  /matching:
+    post:
+      tags:
+        - Matching
+      summary: Check whether a resource appears in database
+      requestBody:
+        description: Resource
+        content:
+          image/*:
+            schema:
+              type: string
+              format: binary
+        required: true
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MatchingResult"
+        "405":
+          description: Invalid input
+components:
+  schemas:
+    MatchingResult:
+      type: object
+      properties:
+        ismatching:
+          type: boolean
+          example: true
+        embedding:
+          type: string
+          format: byte
