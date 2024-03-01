@@ -1,0 +1,22 @@
+{
+  "editor.rulers": [120],
+  "python.analysis.typeCheckingMode": "basic",
+  "editor.formatOnSave": true,
+  "[python]": {
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": "never"
+    }
+  },
+  "sqltools.connections": [
+    {
+      "previewLimit": 50,
+      "server": "localhost",
+      "port": 30555,
+      "askForPassword": true,
+      "driver": "PostgreSQL",
+      "name": "eviltrans",
+      "database": "eviltrans",
+      "username": "evil"
+    }
+  ]
+}
