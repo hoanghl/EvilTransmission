@@ -18,8 +18,9 @@ func InitServer() {
 	r = gin.Default()
 
 	// Routing
-	r.GET("/res/", GetRes)
-	r.POST("/res/", PostRes)
+	r.GET("/res/", GetMediaInfo)
+	// r.GET("/res/:res_id", GetRes)
+	// r.POST("/res/", PostRes)
 }
 
 func StartServer() {
