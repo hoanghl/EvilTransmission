@@ -12,34 +12,24 @@ tags:
 paths:
   /res:
     get:
-      summary: Get resource (thumbnail or file) by ID
+      summary: Get media info
       tags:
         - Resource
       description: |
-        Get resource byt resource ID (rid).
+        Get list of media info in JSON format.
       parameters:
-        - name: rid
+        - name: res_type
           required: true
           in: query
-          description: Resource ID
           schema:
             type: string
-        - name: thumbnail
-          in: query
-          required: true
-          description: Whether needed resource is thumbail or file
-          schema:
-            type: boolean
       responses:
         "200":
-          description: Successfully retrieve the list of all datasets which are available for the current user.
+          description: Successfully retrieve the list media info.
           content:
-            application/mp4:
+            application/json:
               schema:
-                type: string
-                format: binary
-        "401":
-          $ref: "#/components/responses/UnauthorizedResponse"
+                $ref: "#/components/schemas/MediaInfo"
     post:
       summary: Upload resource
       tags:
@@ -47,15 +37,23 @@ paths:
       description: |
         Upload single resources.
       parameters:
-        - name: rtype
+        - name: res_type
           in: query
           required: false
-          description: Resource ype
+          description: Resource type
           schema:
             $ref: "#/components/schemas/MediaType"
       requestBody:
         required: true
         content:
+          image/png:
+            schema:
+              type: string
+              format: binary
+          image/jpeg:
+            schema:
+              type: string
+              format: binary
           application/mp4:
             schema:
               type: string
@@ -67,8 +65,36 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ListFiles"
-        "401":
-          $ref: "#/components/responses/UnauthorizedResponse"
+  /res/{res_id}:
+    get:
+      summary: Get specific resource by ID
+      tags:
+        - Resource
+      description: |
+        Get resource by resource ID (rid).
+      parameters:
+        - name: res_id
+          required: true
+          in: path
+          description: Resource ID
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successfully retrieve resource
+          content:
+            image/png:
+              schema:
+                type: string
+                format: binary
+            image/jpeg:
+              schema:
+                type: string
+                format: binary
+            application/mp4:
+              schema:
+                type: string
+                format: binary
 
   /encryption:
     get:
@@ -80,7 +106,7 @@ paths:
       parameters:
         - name: key
           required: true
-          in: params
+          in: header
           description: RSA Client public key
           schema:
             type: string
@@ -137,6 +163,31 @@ components:
         message:
           type: string
           description: the description of the code.
+    MediaInfo:
+      type: array
+      items:
+        type: object
+        properties:
+          id:
+            type: integer
+          name:
+            type: string
+          res_type:
+            type: string
+          thumbnail:
+            type: object
+            properties:
+              id:
+                type: integer
+              name:
+                type: string
+        example:
+          id: 19
+          name: bravallog.mp4
+          res_type: video
+          thumbnail:
+            id: 1
+            name: barvb.png
     MediaType:
       type: string
       nullable: true
