@@ -1,12 +1,18 @@
 package internal
 
 import (
+	"database/sql"
 	"net/http"
+	"os"
+	"path"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
 
 type REQ_TYPE string
+
+const PATH_DIR_ROOT = "/Users/macos/Projects/xButler/EvilTransmission/db"
 
 const (
 	IMG_JPG  REQ_TYPE = "image/JPG"
@@ -25,6 +31,53 @@ func GetMediaInfo(ctx *gin.Context) {
 
 	ctx.JSON(200, list_info)
 
+}
+
+func GetMedia(ctx *gin.Context) {
+	_res_id := ctx.Param("res_id")
+	res_id, err := strconv.Atoi(_res_id)
+	if err != nil {
+		logger.Error("Invalid res_id: ", res_id)
+		ctx.JSON(http.StatusBadRequest, "")
+		return
+	}
+
+	// Get filename
+	filename, res_type, err := Conf.DB.GetMedia(res_id)
+	if err == sql.ErrNoRows {
+		ctx.JSON(http.StatusBadRequest, "Resource not found")
+		return
+	} else if err != nil {
+		ctx.JSON(http.StatusBadRequest, err)
+		return
+	}
+
+	logger.Debug(filename, " - ", res_type)
+
+	// Read file
+	filepath := path.Join(PATH_DIR_ROOT, res_type, filename)
+	if _, err = os.Stat(filepath); err == nil {
+		file, err := os.ReadFile(filepath)
+		if err != nil {
+			logger.Error("Read file error: ", err)
+			ctx.JSON(http.StatusInternalServerError, "")
+			return
+		}
+		var content_type string
+		switch res_type {
+		case "image":
+			content_type = "image/png"
+		case "thumbnail":
+			content_type = "image/png"
+		case "video":
+			content_type = "application/mp4"
+		default:
+			panic(content_type)
+		}
+
+		ctx.Data(http.StatusOK, content_type, file)
+		return
+	}
 }
 
 // func GetRes(ctx *gin.Context) {

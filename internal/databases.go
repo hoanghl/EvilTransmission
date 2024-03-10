@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	_ "github.com/lib/pq"
+	pq "github.com/lib/pq"
 )
 
 type Thumbnail struct {
@@ -57,19 +57,21 @@ func (db *Database) GetMediaInfo() ([]Row, error) {
 	// Query
 	query := `
 	select 
-		T1.id				as id
-		, T1.res_type		as res_type
-		, T1.file_name		as file_name
-		, T1.thumbnail_id	as thumbnail_id
-		, T2.file_name		as thumbnail_name
+		T1.id				
+		, T1.res_type		
+		, T1.file_name		
+		, T2.id 			as thumbnail_id
+		, T1.thumbnail_name
 	from
 		%s T1
-	LEFT JOIN %s T2
-		on 1=1
-		and T2.id = T1.thumbnail_id
+	LEFT JOIN %s T2 ON 1=1
+		AND T2.res_type = 'thumbnail'
+		AND T2.file_name = T1.thumbnail_name
 	limit 15;
 	`
-	rows, err := conn.Query(fmt.Sprintf(query, db.TABLE, db.TABLE))
+
+	tbl_name := pq.QuoteIdentifier(db.TABLE)
+	rows, err := conn.Query(fmt.Sprintf(query, tbl_name, tbl_name))
 	if err != nil {
 		logger.Errorf("Error as querying: %s", err)
 		return nil, err
@@ -101,6 +103,33 @@ func (db *Database) GetMediaInfo() ([]Row, error) {
 	}
 
 	return ret, nil
+}
+
+func (db *Database) GetMedia(resId int) (string, string, error) {
+	conn := db.initConn()
+	if conn == nil {
+		return "", "", errors.New("cannot initialize connection to DB")
+	}
+	defer conn.Close()
+
+	// Start query
+	query := `
+		SELECT
+			file_name
+			, res_type
+		FROM
+			%s
+		WHERE 1=1
+			AND id = $1
+	`
+	var filename, res_type string
+	row := conn.QueryRow(fmt.Sprintf(query, pq.QuoteIdentifier(db.TABLE)), resId)
+	if err := row.Scan(&filename, &res_type); err == nil {
+		return filename, res_type, nil
+	} else {
+		logger.Error("Error here: ", err)
+		return "", "", err
+	}
 }
 
 // func (db *Database) GetEntry(entryQuery Row) (Row, error) {

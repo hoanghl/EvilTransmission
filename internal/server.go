@@ -19,7 +19,7 @@ func InitServer() {
 
 	// Routing
 	r.GET("/res/", GetMediaInfo)
-	// r.GET("/res/:res_id", GetRes)
+	r.GET("/res/:res_id", GetMedia)
 	// r.POST("/res/", PostRes)
 }
 
