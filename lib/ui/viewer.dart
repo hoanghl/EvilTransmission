@@ -1,7 +1,7 @@
 import 'dart:core';
+import 'dart:io';
 
-import 'package:eviltrans_fe/data/protocol.dart';
-import 'package:eviltrans_fe/ui/media_viewer.dart';
+import 'package:eviltrans_fe/data/media.dart';
 import 'package:eviltrans_fe/utils.dart';
 import 'package:flutter/material.dart';
 
@@ -14,24 +14,39 @@ class Viewer extends StatefulWidget {
 
 class _ViewerState extends State<Viewer> {
   final List<String> tabsName = ["Image", "Video"];
-  List<String>? videoPaths;
-  List<String>? imagePaths;
-  Future<List>? imagesInfo;
+  Future<Map<MediaType, List<String>>>? resources;
 
   @override
   void initState() {
-    imagePaths = [
-      "assets/image.jpg",
-      "assets/image.jpg",
-      "assets/image.jpg",
-      "assets/image.jpg",
-      "assets/image.jpg",
-      "assets/image.jpg",
-      "assets/image.jpg",
-    ];
-    imagesInfo = getResInfo();
+    resources = getResources();
 
     super.initState();
+  }
+
+  Widget getGridView(MediaType mediaType) {
+    return FutureBuilder(
+      future: resources,
+      builder: (context, snapshot) => snapshot.hasData
+          ? GridView.count(
+              crossAxisCount: 2,
+              children: snapshot.data![mediaType]!
+                  .map((e) => Container(
+                        padding: const EdgeInsets.all(10),
+                        margin: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: Colors.amberAccent,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Image.file(File(e)),
+                      ))
+                  .toList(),
+            )
+          : const SizedBox(
+              width: 60,
+              height: 60,
+              child: CircularProgressIndicator(),
+            ),
+    );
   }
 
   @override
@@ -67,28 +82,8 @@ class _ViewerState extends State<Viewer> {
           padding: const EdgeInsets.all(10),
           child: TabBarView(
             children: [
-              FutureBuilder(
-                future: imagesInfo,
-                builder: (context, snapshot) => snapshot.hasData
-                    ? GridView.count(
-                        crossAxisCount: 2,
-                        children: snapshot.data!.map((e) {
-                          var record = e as Map<String, dynamic>;
-                          return Column(
-                            children: [
-                              Text(record['id'].toString()),
-                              Text(record['name']),
-                              Text(record['res_type']),
-                            ],
-                          );
-                        }).toList(),
-                      )
-                    : const SizedBox(
-                        width: 60,
-                        height: 60,
-                        child: CircularProgressIndicator(),
-                      ),
-              ),
+              getGridView(MediaType.image),
+              getGridView(MediaType.thumbnail),
               // GridView.count(
               //   crossAxisCount: 2,
               //   children: imagePaths!
@@ -107,35 +102,6 @@ class _ViewerState extends State<Viewer> {
               //       )
               //       .toList(),
               // ),
-              GridView.count(
-                crossAxisCount: 2,
-                children: imagePaths!
-                    .map(
-                      (e) => GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => MediaViewer(
-                                  mediaType: MediaType.image, mediaPath: e),
-                            ),
-                          );
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.all(10),
-                          margin: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            color: Colors.amberAccent,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Image(
-                            image: AssetImage(e),
-                          ),
-                        ),
-                      ),
-                    )
-                    .toList(),
-              ),
             ],
           ),
         ),

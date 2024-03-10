@@ -1,11 +1,11 @@
 import 'dart:convert';
+import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:eviltrans_fe/utils.dart';
 import 'package:http/http.dart' as http;
-
-import 'dart:io';
-
-import 'dart:typed_data';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as p;
 
 const String host = "192.168.0.163";
 const int port = 30556;
@@ -20,9 +20,30 @@ Future<List> getResInfo() async {
   return output;
 }
 
-// Future<[]byte> getRes(int resId) async {
-//   return
-// }
+Future<PathResource> getRes(
+    int resId, String resName, MediaType resType) async {
+  var uri = Uri(scheme: "http", host: host, port: port, path: "res/$resId");
+  var resp = await http.get(uri);
+  logger.i("Sent GET to ${uri.toString()}");
+
+  // Create filepath to save resource
+  var path = p.join(
+    (await getApplicationDocumentsDirectory()).path,
+    resType.name,
+    resName,
+  );
+
+  logger.d("Done 1: $path");
+
+  // Save resource
+  var file = File(path);
+  file.createSync(recursive: true);
+  await file.writeAsBytes(resp.bodyBytes);
+
+  logger.d("Done 2");
+
+  return PathResource(resType: resType, resPath: path);
+}
 
 void sendData(Uint8List data) async {
   // connect to the socket server
